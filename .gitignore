@@ -1,0 +1,11 @@
+.venv/
+.cache/
+data/
+runtime/
+backups/
+*.egg-info/
+__pycache__/
+.pytest_cache/
+.ruff_cache/
+config.local.json
+
