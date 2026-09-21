@@ -1,0 +1,15 @@
+diff --git a/core/engine.go b/core/engine.go
+--- a/core/engine.go
++++ b/core/engine.go
+@@ -2880,7 +2880,10 @@
+ 		"user", msg.UserName,
+ 		"queue_depth", queueDepth,
+ 	)
+-	e.reply(p, msg.ReplyCtx, e.i18n.T(MsgMessageQueued))
++	// Quiet projects accept queued messages without sending a chat receipt.
++	if e.display.Mode != "quiet" {
++		e.reply(p, msg.ReplyCtx, e.i18n.T(MsgMessageQueued))
++	}
+ 	return true
+ }
+ 

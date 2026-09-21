@@ -46,6 +46,7 @@ async def test_installed_cc_connect_end_to_end(tmp_path):
         project="smoke",
         peer_session="testchat:dm:owner",
         cc_data_dir=tmp_path / "cc",
+        cc_binary=os.getenv("CC_CHAT_TEST_BINARY", Settings().cc_binary),
     )
     s.runtime_dir.mkdir()
     settings_path = tmp_path / "settings.json"
@@ -72,6 +73,7 @@ async def test_installed_cc_connect_end_to_end(tmp_path):
                 "data_dir": str(s.cc_data_dir),
                 "log": {"level": "error"},
                 "display": {
+                    "mode": "quiet",
                     "thinking_messages": False,
                     "tool_messages": False,
                     "show_context_indicator": False,
@@ -141,19 +143,21 @@ async def test_installed_cc_connect_end_to_end(tmp_path):
             assert ack["type"] == "register_ack", ack
             replies = []
             for number in [1, 2]:
-                await ws.send(
-                    json.dumps(
-                        {
-                            "type": "message",
-                            "msg_id": f"msg-{number}",
-                            "session_key": s.peer_session,
-                            "user_id": "owner",
-                            "user_name": "test",
-                            "content": f"测试 {number}",
-                            "reply_ctx": "local-test",
-                        }
+                # Back-to-back inputs exercise queueing while the adapter starts/is busy.
+                for fragment in [1, 2]:
+                    await ws.send(
+                        json.dumps(
+                            {
+                                "type": "message",
+                                "msg_id": f"msg-{number}-{fragment}",
+                                "session_key": s.peer_session,
+                                "user_id": "owner",
+                                "user_name": "test",
+                                "content": f"测试 {number}-{fragment}",
+                                "reply_ctx": "local-test",
+                            }
+                        )
                     )
-                )
                 while True:
                     event = json.loads(await asyncio.wait_for(ws.recv(), 25))
                     if event["type"] == "reply":
@@ -170,7 +174,10 @@ async def test_installed_cc_connect_end_to_end(tmp_path):
                 if len(db.rows("SELECT * FROM messages WHERE role='assistant'")) == 3:
                     break
                 await asyncio.sleep(0.05)
-            assert len(db.rows("SELECT * FROM messages WHERE role='user'")) == 2
+            users = db.rows("SELECT * FROM messages WHERE role='user' ORDER BY revision")
+            assert [row["content"] for row in users] == [
+                "测试 1-1", "测试 1-2", "测试 2-1", "测试 2-2"
+            ]
             assert len(db.rows("SELECT * FROM messages WHERE role='assistant'")) == 3
             assert all("NO_REPLY" not in json.dumps(r) for r in replies)
             try:

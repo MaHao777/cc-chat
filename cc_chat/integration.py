@@ -42,6 +42,8 @@ def migrate(settings: Settings, session: str, config: Path | None = None):
     env["CC_CHAT_CONFIG"] = str(local)
     # Disable default assistant/coding-session decoration only for this project.
     display = project.setdefault("display", tomlkit.table())
+    # Our cc-connect patch also suppresses busy/startup queue receipts in quiet mode.
+    display["mode"] = "quiet"
     for key in ["thinking_messages", "tool_messages", "show_context_indicator", "reply_footer"]:
         display[key] = False
     project["reset_on_idle_mins"] = 0

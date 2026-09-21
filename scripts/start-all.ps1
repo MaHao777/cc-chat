@@ -1,8 +1,11 @@
 $ErrorActionPreference = 'Stop'
 $projectRoot = Split-Path -Parent $PSScriptRoot
 $python = Join-Path $projectRoot '.venv\Scripts\python.exe'
-$cc = Join-Path $env:APPDATA 'npm\node_modules\cc-connect\bin\cc-connect.exe'
-$config = Join-Path $env:USERPROFILE '.cc-connect\config.toml'
+$settingsJson = & $python -c 'from cc_chat.config import Settings; print(Settings.load().model_dump_json())'
+if ($LASTEXITCODE -ne 0) { throw 'Failed to load cc-chat settings' }
+$settings = $settingsJson | ConvertFrom-Json
+$cc = $settings.cc_binary
+$config = Join-Path $settings.cc_data_dir 'config.toml'
 & $python -m cc_chat.cli start | Out-File -FilePath (Join-Path $projectRoot 'data\start.log') -Append -Encoding utf8
 $running = Get-CimInstance Win32_Process | Where-Object { $_.Name -eq 'cc-connect.exe' -and $_.CommandLine -like "*$config*" }
 if (-not $running) {
@@ -10,4 +13,3 @@ if (-not $running) {
     -RedirectStandardOutput (Join-Path $projectRoot 'data\cc-connect.stdout.log') `
     -RedirectStandardError (Join-Path $projectRoot 'data\cc-connect.stderr.log')
 }
-

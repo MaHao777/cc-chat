@@ -39,6 +39,7 @@ def test_migration_and_rollback_preserve_original_bytes(tmp_path, monkeypatch):
     assert "cc_chat.adapter" in p["agent"]["options"]["cli_path"]
     assert p["platforms"][0]["options"]["token"] == "not-a-real-secret"
     assert p["platforms"][0]["options"]["allow_from"] == "owner"
+    assert p["display"]["mode"] == "quiet"
     assert Path(manifest["backup"], "config.toml").read_bytes() == original
     restore(Path(manifest["backup"]))
     assert config.read_bytes() == original
