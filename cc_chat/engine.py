@@ -20,9 +20,15 @@ class Engine:
         self.cooldown = None
 
     async def initialize(self):
-        if not self.db.persona():
-            persona = await self.model.generate("persona", {"now": iso(self.clock())}, Persona)
-            self.db.save_persona(persona.model_dump(), self.clock())
+        if self.db.persona():
+            return
+        brief = self.settings.persona_brief.strip()
+        if not brief:
+            # Never invent a character on the user's behalf; wait for one to be described.
+            return
+        context = {"now": iso(self.clock()), "brief": brief}
+        persona = await self.model.generate("persona", context, Persona)
+        self.db.save_persona(persona.model_dump(), self.clock())
 
     async def receive(self, session, content, source_key):
         if self.settings.transport == "weixin" and session != self.settings.peer_session:
@@ -430,6 +436,11 @@ class Engine:
                 return
             try:
                 await self.initialize()
+                if not self.db.persona():
+                    waiting = "还没有角色设定。在「角色设定」页写下第一段描述，生成之后角色就会开始今天的生活。"
+                    if self.db.get("state") != waiting:
+                        self.db.set("state", waiting)
+                    return
                 job = self.db.one(
                     """SELECT * FROM jobs WHERE status='pending' AND due<=?
                     AND (kind!='proactive' OR ?=0)

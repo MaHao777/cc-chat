@@ -11,6 +11,7 @@ from pydantic import BaseModel, Field, ValidationError
 from starlette.middleware.trustedhost import TrustedHostMiddleware
 
 from .domain import Persona, iso, uid
+from .model import ModelError
 
 HERE = Path(__file__).parent
 
@@ -19,6 +20,10 @@ class Incoming(BaseModel):
     session: str
     content: str = Field(min_length=1, max_length=20000)
     source_key: str = Field(min_length=1, max_length=200)
+
+
+class PersonaBrief(BaseModel):
+    brief: str = Field(min_length=1, max_length=2000)
 
 
 def make_app(engine, run_worker=True):
@@ -153,7 +158,31 @@ def make_app(engine, run_worker=True):
 
     @app.get("/api/persona")
     def persona():
-        return {"current": db.persona(), "history": db.rows("SELECT * FROM personas ORDER BY id DESC")}
+        return {
+            "current": db.persona(),
+            "history": db.rows("SELECT * FROM personas ORDER BY id DESC"),
+            "brief": settings.persona_brief,
+        }
+
+    @app.post("/api/persona/generate")
+    async def generate_persona(body: PersonaBrief):
+        brief = body.brief.strip()
+        if not brief:
+            raise HTTPException(400, "角色设定不能为空")
+        async with engine.gate:
+            try:
+                result = await engine.model.generate(
+                    "persona", {"now": iso(engine.clock()), "brief": brief}, Persona
+                )
+            except ModelError as e:
+                raise HTTPException(502, f"生成角色失败：{e}") from e
+            # Remember the brief so a fresh database can rebuild the same character.
+            settings.persona_brief = brief
+            settings.save()
+            db.save_persona(result.model_dump(), engine.clock())
+            db.set("schedule_day", None)
+            db.set("state", "角色设定已生成，正在重新安排今天的生活")
+        return {"ok": True}
 
     @app.put("/api/persona")
     async def save_persona(body: Persona):

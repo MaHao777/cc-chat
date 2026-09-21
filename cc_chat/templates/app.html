@@ -3,28 +3,28 @@
 <head>
   <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
   <meta name="cc-chat-token" content="{{ token }}">
-  <title>AICHAT · 她的一天</title>
+  <title>AICHAT · 角色的一天</title>
   <link rel="stylesheet" href="/static/app.css"><script src="/static/app.js" defer></script>
 </head>
 <body data-page="{{ page }}" data-transport="{{ transport }}">
   <aside>
     <a class="brand" href="/"><span class="brandmark">a.</span><span>AICHAT<small>一段持续发生的故事</small></span></a>
-    <div class="nav-label">她的世界</div>
-    <nav><a href="/" data-route="/">◌ <span>此刻与联系</span></a><a href="/persona" data-route="/persona">♧ <span>认识她</span></a><a href="/life" data-route="/life">☷ <span>生活与日记</span></a><a href="/memories" data-route="/memories">⌘ <span>记忆抽屉</span></a></nav>
+    <div class="nav-label">角色的世界</div>
+    <nav><a href="/" data-route="/">◌ <span>此刻与联系</span></a><a href="/persona" data-route="/persona">♧ <span>角色设定</span></a><a href="/life" data-route="/life">☷ <span>生活与日记</span></a><a href="/memories" data-route="/memories">⌘ <span>记忆抽屉</span></a></nav>
     <div class="aside-bottom"><span class="dot"></span> 只在这台电脑上<br><small>cc-chat · v0.1</small></div>
   </aside>
   <main>
     <header><div><span class="eyebrow" id="eyebrow">A QUIET CONTINUITY</span><h1 id="page-title">有人记得，今天也在继续。</h1><p id="page-subtitle">生活慢慢发生，对话不必等你先开口。</p></div><div class="date" id="date"></div></header>
     <div id="notice" role="status" hidden></div>
     <section id="status-page" hidden>
-      <div class="hero"><div><span class="eyebrow">此时此刻</span><h2 id="persona-name">正在认识她…</h2><p id="current-state">首次启动会生成背景与今天的安排。</p></div><div class="hero-orbit" aria-hidden="true"><span>日常<br>正在生长</span></div></div>
-      <div class="stats"><article><small>联系的节奏</small><strong>由她决定</strong><p>没有每日次数配额</p></article><article><small>仍在心里的片段</small><strong id="memory-count">—</strong><p>保留关联，也允许遗忘</p></article><article><small>写下的日记</small><strong id="diary-count">—</strong><p>来自确实发生过的一天</p></article></div>
-      <div class="two-col"><section class="panel"><div class="section-head"><h2>下一次联系</h2><button id="pause" class="secondary">暂停主动联系</button></div><div id="plans"></div></section><section class="panel"><h2>最近的对话</h2><div id="messages" class="messages"></div><form id="chat-form" hidden><label for="chat-input">本地模拟对话</label><div class="input-row"><input id="chat-input" placeholder="和她说点什么…" required><button>发送</button></div></form></section></div>
+      <div class="hero"><div><span class="eyebrow">此时此刻</span><h2 id="persona-name">还没有角色</h2><p id="current-state">等待写下第一段设定。</p></div><div class="hero-orbit" aria-hidden="true"><span>日常<br>正在生长</span></div></div>
+      <div class="stats"><article><small>联系的节奏</small><strong>由角色决定</strong><p>没有每日次数配额</p></article><article><small>仍在心里的片段</small><strong id="memory-count">—</strong><p>保留关联，也允许遗忘</p></article><article><small>写下的日记</small><strong id="diary-count">—</strong><p>来自确实发生过的一天</p></article></div>
+      <div class="two-col"><section class="panel"><div class="section-head"><h2>下一次联系</h2><button id="pause" class="secondary">暂停主动联系</button></div><div id="plans"></div></section><section class="panel"><h2>最近的对话</h2><div id="messages" class="messages"></div><form id="chat-form" hidden><label for="chat-input">本地模拟对话</label><div class="input-row"><input id="chat-input" placeholder="说点什么…" required><button>发送</button></div></form></section></div>
       <details class="panel"><summary>运行与发送记录</summary><div id="runtime-error"></div><button id="retry" class="secondary">重新思考未完成的对话</button><div id="outbox"></div><div id="audit"></div></details>
     </section>
-    <section id="persona-page" hidden><div class="panel"><p class="hint">初始背景由 AI 生成。修改会保存新版本，并重新安排未来的生活；过去的经历保留原貌。</p><form id="persona-form"></form></div><details class="panel"><summary>过去的设定版本</summary><div id="persona-history"></div></details></section>
-    <section id="life-page" hidden><div class="two-col life-grid"><section class="panel"><h2>生活时间线</h2><div id="events"></div></section><section class="panel diary-panel"><h2>她写给自己的日记</h2><p class="hint">北京时间 23:30 整理；之后发生的事会成为补记。</p><div id="diaries"></div></section></div></section>
-    <section id="memories-page" hidden><div class="panel"><div class="section-head"><div><h2>记忆有来处，也会慢慢模糊</h2><p class="hint">后台档案不等于她仍然记得。已遗忘的原文只供你查看。</p></div></div><form id="search-form" class="input-row"><input id="search-input" placeholder="试着问：我平时喜欢喝什么？" required><button>查看回忆结果</button></form><div id="search-results"></div></div><div id="memory-list" class="memory-grid"></div><details class="panel"><summary>检索与遗忘设置</summary><form id="settings-form"></form></details><details class="panel"><summary>最近的检索记录</summary><div id="retrievals"></div></details></section>
+    <section id="persona-page" hidden><div class="panel"><p class="hint">角色不预设任何身份。写下一段设定，由 AI 展开成完整角色；也可以直接修改下面的每一项。改动会保存新版本，并重新安排未来的生活，过去的经历保留原貌。</p><div id="persona-form"></div></div><details class="panel"><summary>过去的设定版本</summary><div id="persona-history"></div></details></section>
+    <section id="life-page" hidden><div class="two-col life-grid"><section class="panel"><h2>生活时间线</h2><div id="events"></div></section><section class="panel diary-panel"><h2>写给自己看的日记</h2><p class="hint">北京时间 23:30 整理；之后发生的事会成为补记。</p><div id="diaries"></div></section></div></section>
+    <section id="memories-page" hidden><div class="panel"><div class="section-head"><div><h2>记忆有来处，也会慢慢模糊</h2><p class="hint">后台档案不等于仍然记得。已遗忘的原文只供你查看。</p></div></div><form id="search-form" class="input-row"><input id="search-input" placeholder="试着问：我平时喜欢喝什么？" required><button>查看回忆结果</button></form><div id="search-results"></div></div><div id="memory-list" class="memory-grid"></div><details class="panel"><summary>检索与遗忘设置</summary><form id="settings-form"></form></details><details class="panel"><summary>最近的检索记录</summary><div id="retrievals"></div></details></section>
     <footer>让每次想起，都有来处。<span>AICHAT / cc-chat</span></footer>
   </main>
 </body></html>

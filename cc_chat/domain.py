@@ -31,14 +31,12 @@ class Strict(BaseModel):
 class Persona(Strict):
     name: str = Field(min_length=1, max_length=40)
     age: int = Field(ge=18, le=60)
-    school: str
-    major: str
-    year: str
+    identity: str
     personality: str
     speaking_style: str
     interests: list[str]
     background: str
-    courses: list[str]
+    routine: list[str]
     people: list[str]
 
 

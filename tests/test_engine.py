@@ -1,6 +1,8 @@
 import asyncio
 from datetime import timedelta
 
+from conftest import BRIEF, PERSONA
+
 from cc_chat.domain import Activity, DaySchedule, Decision, Plan, iso, uid
 from cc_chat.store import dump
 from cc_chat.transport import SendResult
@@ -274,9 +276,30 @@ async def test_model_error_never_creates_assistant_message(env):
 async def test_initial_persona_does_not_discard_first_message(env):
     e, db, model, memory, transport, clock = env
     db.execute("DELETE FROM personas")
+    e.settings.persona_brief = BRIEF
     await e.receive("mock:owner", "初次见面", "first")
     await e.tick()
     assert len(transport.sent) == 1
+
+
+async def test_missing_persona_is_never_invented(env):
+    e, db, model, memory, transport, clock = env
+    db.execute("DELETE FROM personas")
+    await e.tick()
+    assert db.persona() is None
+    assert not [task for task, _ in model.calls if task == "persona"]
+    assert "还没有角色设定" in db.get("state")
+
+
+async def test_persona_brief_is_the_only_source_of_the_character(env):
+    e, db, model, memory, transport, clock = env
+    db.execute("DELETE FROM personas")
+    e.settings.persona_brief = BRIEF
+    await e.tick()
+    assert db.persona()["identity"] == PERSONA["identity"]
+    brief = [context for task, context in model.calls if task == "persona"][0]
+    assert brief["brief"] == BRIEF
+    assert "school" not in brief and "persona" not in brief
 
 
 async def test_null_next_plan_cancels_previous_intent(env):

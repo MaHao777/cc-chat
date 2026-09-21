@@ -12,17 +12,17 @@ from cc_chat.transport import MockTransport
 
 PERSONA = dict(
     name="林知夏",
-    age=20,
-    school="云川大学（虚构）",
-    major="中文",
-    year="大二",
+    age=24,
+    identity="在旧书店上白班，业余学摄影",
     personality="安静但有主见",
     speaking_style="自然简短",
     interests=["阅读"],
-    background="在中国读大学",
-    courses=["文学史"],
-    people=["室友小禾（虚构）"],
+    background="在一座小城长大，毕业后留下来工作",
+    routine=["书店白班", "周三晚的摄影课"],
+    people=["同住的室友小禾（虚构）"],
 )
+
+BRIEF = "在旧书店打工的年轻人，话少，喜欢胶片摄影，和室友合租。"
 
 
 class Clock:
@@ -87,6 +87,8 @@ def env(tmp_path):
         message_wait_seconds=0,
         fragment_delay_seconds=0,
     )
+    # Keep settings.save() inside tmp_path; never touch the real config.local.json.
+    s._path = tmp_path / "config.local.json"
     db = Store(s.data_dir / "test.db")
     model, clock, transport = FakeModel(), Clock(), MockTransport()
     memory = Memory(db, s, Embedding())

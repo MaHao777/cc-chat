@@ -15,6 +15,8 @@ class Settings(BaseModel):
     transport: str = "mock"
     project: str = "default"
     peer_session: str = ""
+    # The character is whatever the user describes here; nothing is assumed.
+    persona_brief: str = ""
     cc_data_dir: Path = Path.home() / ".cc-connect"
     cc_binary: str = str(Path.home() / "AppData/Roaming/npm/node_modules/cc-connect/bin/cc-connect.exe")
     claude_binary: str = str(Path.home() / ".local/bin/claude.exe")
